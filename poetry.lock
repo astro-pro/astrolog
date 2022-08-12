@@ -1,0 +1,37 @@
+[[package]]
+name = "pyswisseph"
+version = "2.10.2.0.dev1"
+description = "Python extension to the Swiss Ephemeris"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[metadata]
+lock-version = "1.1"
+python-versions = "^3.10"
+content-hash = "c78b1124c2526eef0da7df682aa6979861902d92bf7624b069f60166d2461a21"
+
+[metadata.files]
+pyswisseph = [
+    {file = "pyswisseph-2.10.2.0.dev1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:b276eae6ba21edb30e144f5f096db0328e48fe17e574dfe2ef91456e8e586bb3"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp36-cp36m-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:42fb6c529dc6979d5d9411ba2970d2032ab9cb95905b6208331503bef82fb99e"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp36-cp36m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:3c4ce4adff2134f6a818470b1976496d7cec773544f8243a43f49ddd26f27e08"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp36-cp36m-win32.whl", hash = "sha256:d2017626b58915b6cc00135b92491f1cffe0724d0d807b1a0cfd411816cfafcc"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp36-cp36m-win_amd64.whl", hash = "sha256:7cd5f28e6017c6f87ae3bfcfd99c2c810af7379ac6b716d8221561ee60a0fb3e"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:05a30432cf01a17f3c8343d57c54b891fa5395541d361c8a8d2c2514e0bf1054"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp37-cp37m-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:80c353fc28a3b6bc6b5c9cda0fa4bc894ff13e03a7a41d9b83e31f070f619982"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp37-cp37m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:f048232b933eb9830b23b890ae77ed4d4162621e4f3ef564df4f0b159bdc1add"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp37-cp37m-win32.whl", hash = "sha256:953446222b8098b3884c9dd9a6b2bd9cdc9d391c930e7c1d08b25da6779fa98d"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp37-cp37m-win_amd64.whl", hash = "sha256:1e0f2be611c60d01c2fa4a26f5dd4cb312cd83e83cce6109f40a2ef9d5b44e89"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:8b3a3d368bf131f19cbcb7812a1d53fbdbabb1987417f22e3bb686c6683d4480"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp38-cp38-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:1efb09fe2a3930517198f3a3fbf7a6ef1f7718568f43be567f968e8fde461498"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:b60b7af4c8d3d6af52dc049c0eff6d6bc9bfe77e47a24d35adec75d82c9ee316"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp38-cp38-win32.whl", hash = "sha256:54a4e0b4f7bc68bc918a8c60b55ac67b403a8a1e7b1ce576d0ef66b17553f38a"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp38-cp38-win_amd64.whl", hash = "sha256:6e729d9c4c32110b6893666755aeab425fafd2d63e6f16a94159c58cf952e1d0"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:6279bdbaf806319a94c86dce21fe12b71ba9b0e90f5606d0d5495752e8817f09"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp39-cp39-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:02edab9bfd5c8ca027d7c50592037f2792d03ac07b4ca805c13e0f7dcd62b894"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:9e24dd2b0a238032e208c91e2525e31d86eb01eb370589995207bb249dcc0b33"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp39-cp39-win32.whl", hash = "sha256:a5c1b83d9896f54f9a228c0c25d9bf24a150f1f9c8349bbd3572cdb61189e6e6"},
+    {file = "pyswisseph-2.10.2.0.dev1-cp39-cp39-win_amd64.whl", hash = "sha256:5d4c8cd3774312c1e3d833ad8c478252707711977c9808ba0f631ecae0be6a5e"},
+    {file = "pyswisseph-2.10.2.0.dev1.tar.gz", hash = "sha256:4fe174f5cb270f256481cd0a0c61d0379c901ab0c0da10fe0819f680adab3cbf"},
+]
