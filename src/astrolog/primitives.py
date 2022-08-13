@@ -33,6 +33,16 @@ class Angle:
         return None
 
 
+@dataclass
+class AngularSpeed(Angle):
+    """Angular speed measured in degrees per day"""
+    def __init__(self, degrees: str | float | int | NoneType = None, *, speed: float | int,
+                 radians: float | int | NoneType = None):
+        super().__init__(degrees, radians=radians)
+        self.speed = speed
+
+
+@dataclass
 class GeoLocation:
     """Location on the earth"""
 
