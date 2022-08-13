@@ -27,6 +27,9 @@ class Celestial(ABC):
         "QUAOAR": swe.AST_OFFSET + 50000,
     }
 
+    def __init__(self):
+        self.name = None
+
     def ecl_coord(self, time: datetime, location: GeoLocation) -> EclCoord:
         swe.set_topo(location.longitude.degrees, location.latitude.degrees)
         jd = swe.julday(time.year, time.month, time.day, time.hour + time.minute / 60.)
