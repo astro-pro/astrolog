@@ -1,8 +1,15 @@
 [tool.poetry]
 name = "astrolog"
-version = "0.4.3"
+version = "0.5.0"
 description = "High-level astrology methods based on Swiss Ephemeris"
 authors = ["Ign. Aiom Ominous <aiom.ominous@gmail.com>"]
+keywords = ["astronomy", "swisseph", "astrology", "swissephemeris"]
+classifiers = ["Development Status :: 3 - Alpha", "Intended Audience :: Developers", "Intended Audience :: Science/Research",
+               "License :: OSI Approved :: BSD License", "Topic :: Scientific/Engineering :: Astronomy"]
+license = "BSD-4-Clause"
+
+[tool.poetry.urls]
+repository = "https://github.com/astro-pro/astrolog"
 
 [tool.poetry.dependencies]
 python = "^3.10"
