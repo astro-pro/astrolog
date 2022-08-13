@@ -1,4 +1,12 @@
 [[package]]
+name = "dms2dec"
+version = "0.1"
+description = "DMS to decimal. Convert degrees minutes seconds to decimal latitude/longitude"
+category = "main"
+optional = false
+python-versions = ">=3"
+
+[[package]]
 name = "pyswisseph"
 version = "2.10.2.0.dev1"
 description = "Python extension to the Swiss Ephemeris"
@@ -9,9 +17,13 @@ python-versions = ">=3.5"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "c78b1124c2526eef0da7df682aa6979861902d92bf7624b069f60166d2461a21"
+content-hash = "b3214bacbb4130a0508ccf1bbe30f621526a4e6e0ad7656c323f7982b8230f22"
 
 [metadata.files]
+dms2dec = [
+    {file = "dms2dec-0.1-py3-none-any.whl", hash = "sha256:ae7359dddbb72c2c7a64c9fa96695c59c73807e56f0d5fc41e4e7e4545f0fe97"},
+    {file = "dms2dec-0.1.tar.gz", hash = "sha256:38ada6416bb6050a187b7eb4f504704f4c0d5bee3bf309b8abb6a9481eb5f624"},
+]
 pyswisseph = [
     {file = "pyswisseph-2.10.2.0.dev1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:b276eae6ba21edb30e144f5f096db0328e48fe17e574dfe2ef91456e8e586bb3"},
     {file = "pyswisseph-2.10.2.0.dev1-cp36-cp36m-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:42fb6c529dc6979d5d9411ba2970d2032ab9cb95905b6208331503bef82fb99e"},

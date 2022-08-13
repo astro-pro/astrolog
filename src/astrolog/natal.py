@@ -3,7 +3,7 @@ import swisseph as swe
 
 from .celestials import Celestial
 from .primitives import GeoLocation
-from .coords import HorCoord, EclCoord
+from .coords import HorCoord, EclCoord, EquatorCoord
 from .zodiac import Zodiac, ZodiacConstell
 
 
@@ -27,7 +27,7 @@ class NatalObject:
             self.__ecl_coord = self.obj.swe_ecl_coord(self.julday())
         return self.__ecl_coord
 
-    def equator_coord(self) -> EclCoord:
+    def equator_coord(self) -> EquatorCoord:
         if self.__equator_coord is None:
             self.__equator_coord = self.obj.swe_equator_coord(self.julday())
         return self.__equator_coord

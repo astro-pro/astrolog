@@ -6,6 +6,7 @@ authors = ["Ign. Aiom Ominous <aiom.ominous@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+dms2dec = "^0.1"
 pyswisseph = "=2.10.02.0.dev1"
 
 [tool.poetry.dev-dependencies]

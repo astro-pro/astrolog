@@ -98,9 +98,9 @@ class Celestial(ABC):
 
     @classmethod
     def swe_id_by_name(cls, name: str) -> int:
-        swe_code = cls.NAMES.get(name)
+        swe_code = cls.NAMES.get(name.upper())
         if swe_code is None:
-            raise Exception('Unknown planet %s' % name)
+            raise Exception(f"Unknown planet {name}")
         return swe_code
 
     @abstractmethod
