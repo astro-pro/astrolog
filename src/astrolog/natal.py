@@ -24,11 +24,13 @@ class NatalObject:
 
     def ecl_coord(self) -> EclCoord:
         if self.__ecl_coord is None:
+            swe.set_topo(self.place.longitude.degrees, self.place.latitude.degrees)
             self.__ecl_coord = self.obj.swe_ecl_coord(self.julday())
         return self.__ecl_coord
 
     def equator_coord(self) -> EquatorCoord:
         if self.__equator_coord is None:
+            swe.set_topo(self.place.longitude.degrees, self.place.latitude.degrees)
             self.__equator_coord = self.obj.swe_equator_coord(self.julday())
         return self.__equator_coord
 
@@ -64,7 +66,6 @@ class Natal:
         self.birth = birth
         self.place = place
         self.celestials = {obj: NatalObject(obj, birth, place) for obj in celestials}
-        swe.set_topo(self.place.longitude.degrees, self.place.latitude.degrees)
 
     def __iter__(self):
         for cel in self.celestials:
