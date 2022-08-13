@@ -16,6 +16,7 @@ class NatalObject:
         self.birth = birth
         self.place = place
         self.__ecl_coord = None
+        self.__equator_coord = None
         self.__transits = None
 
     def julday(self) -> float:
@@ -25,6 +26,11 @@ class NatalObject:
         if self.__ecl_coord is None:
             self.__ecl_coord = self.obj.swe_ecl_coord(self.julday())
         return self.__ecl_coord
+
+    def equator_coord(self) -> EclCoord:
+        if self.__equator_coord is None:
+            self.__equator_coord = self.obj.swe_equator_coord(self.julday())
+        return self.__equator_coord
 
     def hor_coord(self) -> HorCoord:
         coord = self.ecl_coord()
