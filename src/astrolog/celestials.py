@@ -188,7 +188,7 @@ class Apside(Celestial):
         return True
 
 
-class BlackSun(Apside):
+class SecondFocus(Apside):
     """Second focal point of some planet orbit"""
 
     def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
@@ -274,12 +274,12 @@ Planet.Pluto = Planet("Pluto")
 Planet.septener = [Planet.Sun, Planet.Mars, Planet.Moon, Planet.Mercury, Planet.Jupiter, Planet.Venus, Planet.Saturn]
 Planet.novile = Planet.septener + [Planet.Uranus, Planet.Neptune]
 
-BlackSun.BlackEarth = BlackSun("Black Earth", swe.MOON)
-BlackSun.Mercury = BlackSun("BS Mercury", swe.MERCURY)
-BlackSun.Venus = BlackSun("BS Venus", swe.VENUS)
-BlackSun.Earth = BlackSun("BS Earth", swe.EARTH)
-BlackSun.Mars = BlackSun("BS Mars", swe.MARS)
-BlackSun.Jupiter = BlackSun("BS Jupiter", swe.JUPITER)
-BlackSun.Saturn = BlackSun("BS Saturn", swe.SATURN)
-BlackSun.Uranus = BlackSun("BS Uranus", swe.URANUS)
-BlackSun.Neptune = BlackSun("BS Neptune", swe.NEPTUNE)
+SecondFocus.Moon = SecondFocus("BE Moon", swe.MOON)
+SecondFocus.Mercury = SecondFocus("BS Mercury", swe.MERCURY)
+SecondFocus.Venus = SecondFocus("BS Venus", swe.VENUS)
+SecondFocus.Earth = SecondFocus("BS Earth", swe.EARTH)
+SecondFocus.Mars = SecondFocus("BS Mars", swe.MARS)
+SecondFocus.Jupiter = SecondFocus("BS Jupiter", swe.JUPITER)
+SecondFocus.Saturn = SecondFocus("BS Saturn", swe.SATURN)
+SecondFocus.Uranus = SecondFocus("BS Uranus", swe.URANUS)
+SecondFocus.Neptune = SecondFocus("BS Neptune", swe.NEPTUNE)
