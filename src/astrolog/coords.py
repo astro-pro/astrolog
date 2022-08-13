@@ -44,6 +44,9 @@ class EclCoord:
             offset = pos - constell.from_lng
         return constell, offset
 
+    def json(self) -> object:
+        return [self.latitude.degrees, self.longitude.degrees]
+
 
 @dataclass
 class EquatorCoord:
@@ -55,6 +58,9 @@ class EquatorCoord:
     def __init__(self, ra: float, decl: float):
         self.ra = Angle(ra)
         self.decl = Angle(decl)
+
+    def json(self) -> object:
+        return [self.ra.degrees, self.decl.degrees]
 
 
 @dataclass
@@ -78,3 +84,6 @@ class HorCoord:
         house_pos = angle * 13.0 / 360.0 + 1.0 - house13
         house_pos *= 180.0 / math.pi
         return house13, house_pos
+
+    def json(self) -> object:
+        return [self.azimuth.degrees, self.altitude.degrees]
