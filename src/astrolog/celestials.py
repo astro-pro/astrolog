@@ -171,12 +171,23 @@ class Planet(Celestial):
             return EquatorCoord(equator[0], equator[1])
 
 
-class Apside(Celestial):
+class ApsisNode(Celestial):
     """Planet apsides and nodes"""
 
     def __init__(self, name: str, swe_code: int | NoneType = None):
         self.name = name
         self.__swe_code = swe_code or Celestial.swe_id_by_name(name)
+
+    def __swe_ecl_coord_nod_aps(self, jd, *, speed: bool = False, mean: bool = False, equatorial: bool = False, second_focus: bool = False):
+        method = swe.NODBIT_MEAN if mean else swe.NODBIT_OSCU
+        if second_focus:
+            method |= swe.NODBIT_FOPOINT
+        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR
+        if speed:
+            iflag |= swe.FLG_SPEED
+        if equatorial:
+            iflag |= swe.FLG_EQUATORIAL
+        return swe.nod_aps_ut(jd, self.__swe_code, method, iflag)
 
     def swe_id(self) -> int:
         return self.__swe_code
@@ -188,30 +199,90 @@ class Apside(Celestial):
         return True
 
 
-class SecondFocus(Apside):
+class SecondFocus(ApsisNode):
     """Second focal point of some planet orbit"""
 
     def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
-        method = swe.NODBIT_FOPOINT
-        if not mean:
-            method |= swe.NODBIT_OSCU
-        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR
-        if speed:
-            iflag |= swe.FLG_SPEED
-        (_, _, _, ecl) = swe.nod_aps_ut(jd, self.__swe_code, method, iflag)
+        (_, _, _, ecl) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False, second_focus=True)
         if speed:
             return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
         else:
             return EclCoord(ecl[0], ecl[1])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
-        method = swe.NODBIT_FOPOINT
-        if not mean:
-            method |= swe.NODBIT_OSCU
-        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL
+        (_, _, _, equator) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True, second_focus=True)
         if speed:
-            iflag |= swe.FLG_SPEED
-        (_, _, _, equator) = swe.nod_aps_ut(jd, self.__swe_code, method, iflag)
+            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+        else:
+            return EquatorCoord(equator[0], equator[1])
+
+
+class ApoApsis(ApsisNode):
+    """Aphelion/apogee of some planet orbit"""
+
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
+        (_, _, _, ecl) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False)
+        if speed:
+            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+        else:
+            return EclCoord(ecl[0], ecl[1])
+
+    def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
+        (_, _, _, equator) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True)
+        if speed:
+            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+        else:
+            return EquatorCoord(equator[0], equator[1])
+
+
+class PeriApsis(ApsisNode):
+    """Perihelion/perigee of some planet orbit"""
+
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
+        (_, _, ecl, _) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False)
+        if speed:
+            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+        else:
+            return EclCoord(ecl[0], ecl[1])
+
+    def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
+        (_, _, equator, _) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True)
+        if speed:
+            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+        else:
+            return EquatorCoord(equator[0], equator[1])
+
+
+class AscNode(ApsisNode):
+    """Ascending node of some planet orbit"""
+
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
+        (ecl, _, _, _) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False)
+        if speed:
+            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+        else:
+            return EclCoord(ecl[0], ecl[1])
+
+    def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
+        (equator, _, _, _) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True)
+        if speed:
+            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+        else:
+            return EquatorCoord(equator[0], equator[1])
+
+
+class DscNode(ApsisNode):
+    """Descending node of some planet orbit"""
+
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
+        (_, ecl, _, _) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False)
+        if speed:
+            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+        else:
+            return EclCoord(ecl[0], ecl[1])
+
+    def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
+        (_, equator, _, _) = self.__swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True)
         if speed:
             return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
         else:
