@@ -104,8 +104,8 @@ class EclSpeed(EclCoord):
 
     def json(self) -> dict:
         d = super().json()
-        d['long_spd'] = self.longitude_speed
-        d['lat_spd'] = self.latitude_speed
+        d['long_spd'] = self.longitude_speed.deg_per_day
+        d['lat_spd'] = self.latitude_speed.deg_per_day
         return d
 
 @dataclass
@@ -122,6 +122,6 @@ class EquatorSpeed(EquatorCoord):
 
     def json(self) -> object:
         d = super().json()
-        d['ra_spd'] = self.ra_speed
-        d['decl_spd'] = self.decl_speed
+        d['ra_spd'] = self.ra_speed.deg_per_day
+        d['decl_spd'] = self.decl_speed.deg_per_day
         return d

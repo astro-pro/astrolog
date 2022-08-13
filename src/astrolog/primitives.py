@@ -37,7 +37,7 @@ class Angle:
 class AngularSpeed:
     """Angular speed measured in degrees per day"""
     def __init__(self, speed: float | int):
-        self.speed = speed
+        self.deg_per_day = speed
 
 
 @dataclass
