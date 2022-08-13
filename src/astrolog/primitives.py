@@ -1,19 +1,24 @@
+from dataclasses import dataclass
+from types import NoneType
+
 from dms2dec.dms_convert import dms2dec
 import math
 
 
+@dataclass
 class Angle:
     """Angle measured in degrees"""
 
-    def __init__(self, *arg, **kwarg):
-        if len(arg) > 0:
-            deg = arg[0]
-            if type(deg) is str:
-                self.degrees = dms2dec(deg)
-            elif type(deg) is float or type(deg) is int:
-                self.degrees = deg
-        elif 'radians' in kwarg:
-            self.degrees = kwarg['radians'] * 180 / math.pi
+    def __init__(self, degrees: str | float | int | NoneType = None, *, radians: float | int | NoneType = None):
+        if radians is not None and degrees is not None:
+            raise RuntimeError("either degrees or radians has to be provided to the method")
+        elif degrees is not None:
+            if type(degrees) is str:
+                self.degrees = dms2dec(degrees)
+            elif type(degrees) is float or type(degrees) is int:
+                self.degrees = degrees
+        elif radians is not None:
+            self.degrees = radians * 180 / math.pi
 
     def radians(self):
         return self.degrees * 2 * math.pi / 360
