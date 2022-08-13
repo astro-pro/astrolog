@@ -120,7 +120,7 @@ class EquatorSpeed(EquatorCoord):
         self.ra_speed = AngularSpeed(ra_speed)
         self.decl_speed = AngularSpeed(decl_speed)
 
-    def json(self) -> object:
+    def json(self) -> dict:
         d = super().json()
         d['ra_spd'] = self.ra_speed.deg_per_day
         d['decl_spd'] = self.decl_speed.deg_per_day
