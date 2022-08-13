@@ -153,7 +153,10 @@ class Planet(Celestial):
         if speed:
             iflag |= swe.FLG_SPEED
         (ecl, _) = swe.calc_ut(jd, self.__swe_code, iflag)
-        return EclCoord(ecl[0], ecl[1])
+        if speed:
+            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+        else:
+            return EclCoord(ecl[0], ecl[1])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord | EquatorSpeed:
         if mean is not False:
@@ -162,7 +165,10 @@ class Planet(Celestial):
         if speed:
             iflag |= swe.FLG_SPEED
         (equator, _) = swe.calc_ut(jd, self.__swe_code, iflag)
-        return EquatorCoord(equator[0], equator[1])
+        if speed:
+            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+        else:
+            return EquatorCoord(equator[0], equator[1])
 
 
 class Apside(Celestial):
@@ -193,7 +199,10 @@ class BlackSun(Apside):
         if speed:
             iflag |= swe.FLG_SPEED
         (_, _, _, ecl) = swe.nod_aps_ut(jd, self.__swe_code, method, iflag)
-        return EclCoord(ecl[0], ecl[1])
+        if speed:
+            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+        else:
+            return EclCoord(ecl[0], ecl[1])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
         method = swe.NODBIT_FOPOINT
@@ -203,7 +212,10 @@ class BlackSun(Apside):
         if speed:
             iflag |= swe.FLG_SPEED
         (_, _, _, equator) = swe.nod_aps_ut(jd, self.__swe_code, method, iflag)
-        return EquatorCoord(equator[0], equator[1])
+        if speed:
+            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+        else:
+            return EquatorCoord(equator[0], equator[1])
 
 
 class FixedCelestial(Celestial):
@@ -229,7 +241,10 @@ class FixedCelestial(Celestial):
         if speed:
             iflag |= swe.FLG_SPEED
         (ecl, _, _) = swe.fixstar_ut(self.__swe_code, jd, iflag)
-        return EclCoord(ecl[0], ecl[1])
+        if speed:
+            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+        else:
+            return EclCoord(ecl[0], ecl[1])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
         if mean is not False:
@@ -238,7 +253,10 @@ class FixedCelestial(Celestial):
         if speed:
             iflag |= swe.FLG_SPEED
         (equator, _, _) = swe.fixstar_ut(self.__swe_code, jd, iflag)
-        return EquatorCoord(equator[0], equator[1])
+        if speed:
+            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+        else:
+            return EquatorCoord(equator[0], equator[1])
 
 
 Planet.Sun = Planet("Sun")
