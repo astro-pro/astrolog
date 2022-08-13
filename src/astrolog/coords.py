@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 import math
 
-from .primitives import Angle
+from .primitives import Angle, AngularSpeed
 from .zodiac import Zodiac, ZodiacConstell
+
 
 @dataclass
 class EclCoord:
@@ -44,8 +45,8 @@ class EclCoord:
             offset = pos - constell.from_lng
         return constell, offset
 
-    def json(self) -> object:
-        return [self.latitude.degrees, self.longitude.degrees]
+    def json(self) -> dict:
+        return {'lat': self.latitude.degrees, 'long': self.longitude.degrees}
 
 
 @dataclass
@@ -59,8 +60,8 @@ class EquatorCoord:
         self.ra = Angle(ra)
         self.decl = Angle(decl)
 
-    def json(self) -> object:
-        return [self.ra.degrees, self.decl.degrees]
+    def json(self) -> dict:
+        return {'ra': self.ra.degrees, 'decl': self.decl.degrees}
 
 
 @dataclass
@@ -85,5 +86,42 @@ class HorCoord:
         house_pos *= 180.0 / math.pi
         return house13, house_pos
 
+    def json(self) -> dict:
+        return {'azimuth': self.azimuth.degrees, 'alt': self.altitude.degrees}
+
+
+@dataclass
+class EclSpeed(EclCoord):
+    """Ecliptic coordinate with speed"""
+
+    longitude_speed: AngularSpeed
+    latitude_speed: AngularSpeed
+
+    def __init__(self, longitude: float, latitude: float, longitude_speed: float, latitude_speed: float):
+        super().__init__(longitude, latitude)
+        self.longitude_speed = AngularSpeed(longitude_speed)
+        self.latitude_speed = AngularSpeed(latitude_speed)
+
+    def json(self) -> dict:
+        d = super().json()
+        d['long_spd'] = self.longitude_speed
+        d['lat_spd'] = self.latitude_speed
+        return d
+
+@dataclass
+class EquatorSpeed(EquatorCoord):
+    """Ecliptic coordinate with speed"""
+
+    ra_speed: AngularSpeed
+    decl_speed: AngularSpeed
+
+    def __init__(self, ra: float, decl: float, ra_speed: float, decl_speed: float):
+        super().__init__(ra, decl)
+        self.ra_speed = AngularSpeed(ra_speed)
+        self.decl_speed = AngularSpeed(decl_speed)
+
     def json(self) -> object:
-        return [self.azimuth.degrees, self.altitude.degrees]
+        d = super().json()
+        d['ra_spd'] = self.ra_speed
+        d['decl_spd'] = self.decl_speed
+        return d
