@@ -3,7 +3,7 @@ import swisseph as swe
 
 from .celestials import Celestial
 from .primitives import GeoLocation
-from .coords import HorCoord, EclCoord, EquatorCoord
+from .coords import HorCoord, EclCoord, EquatorCoord, EclSpeed
 from .zodiac import Zodiac, ZodiacConstell
 
 
@@ -22,16 +22,16 @@ class NatalObject:
     def julday(self) -> float:
         return swe.julday(self.birth.year, self.birth.month, self.birth.day, self.birth.hour + self.birth.minute / 60.)
 
-    def ecl_coord(self) -> EclCoord:
+    def ecl_coord(self, *, speed: bool = False, mean: bool = False) -> EclCoord | EclSpeed:
         if self.__ecl_coord is None:
             swe.set_topo(self.place.longitude.degrees, self.place.latitude.degrees)
-            self.__ecl_coord = self.obj.swe_ecl_coord(self.julday())
+            self.__ecl_coord = self.obj.swe_ecl_coord(self.julday(), speed=speed, mean=mean)
         return self.__ecl_coord
 
-    def equator_coord(self) -> EquatorCoord:
+    def equator_coord(self, *, speed: bool = False, mean: bool = False) -> EquatorCoord | EquatorCoord:
         if self.__equator_coord is None:
             swe.set_topo(self.place.longitude.degrees, self.place.latitude.degrees)
-            self.__equator_coord = self.obj.swe_equator_coord(self.julday())
+            self.__equator_coord = self.obj.swe_equator_coord(self.julday(), speed=speed, mean=mean)
         return self.__equator_coord
 
     def hor_coord(self) -> HorCoord:

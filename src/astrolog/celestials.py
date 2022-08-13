@@ -5,6 +5,7 @@ from types import NoneType
 import swisseph as swe
 
 from . import GeoLocation, EclCoord, EquatorCoord, HorCoord
+from .coords import EclSpeed, EquatorSpeed
 
 
 class Celestial(ABC):
@@ -30,26 +31,32 @@ class Celestial(ABC):
     def __init__(self):
         self.name = None
 
-    def ecl_coord(self, time: datetime, location: GeoLocation) -> EclCoord:
+    def ecl_coord(self, time: datetime, location: GeoLocation, *, speed: bool = False, mean: bool = False) -> EclCoord | EclSpeed:
         swe.set_topo(location.longitude.degrees, location.latitude.degrees)
         jd = swe.julday(time.year, time.month, time.day, time.hour + time.minute / 60.)
-        return self.swe_ecl_coord(jd)
+        return self.swe_ecl_coord(jd, speed=speed, mean=mean)
 
-    def equator_coord(self, time: datetime, location: GeoLocation) -> EquatorCoord:
+    def equator_coord(self, time: datetime, location: GeoLocation, *, speed: bool = False, mean: bool = False) -> EquatorCoord | EquatorSpeed:
         swe.set_topo(location.longitude.degrees, location.latitude.degrees)
         jd = swe.julday(time.year, time.month, time.day, time.hour + time.minute / 60.)
-        return self.swe_equator_coord(jd)
+        return self.swe_equator_coord(jd, speed=speed, mean=mean)
 
-    def hor_coord(self, time: datetime, location: GeoLocation) -> HorCoord:
+    def hor_coord(self, time: datetime, location: GeoLocation, *, mean: bool = False) -> HorCoord:
         swe.set_topo(location.longitude.degrees, location.latitude.degrees)
         jd = swe.julday(time.year, time.month, time.day, time.hour + time.minute / 60.)
-        coord = self.swe_equator_coord(jd)
+        coord = self.swe_equator_coord(jd, mean=mean)
         geopos = (location.longitude.degrees, location.latitude.degrees, 0.0)
         pos = (coord.ra.degrees, coord.decl.degrees, 0.0)
         atpress = 0
         attemp = 0
         (azimuth, true_alt, app_alt) = swe.azalt(jd, swe.EQU2HOR, geopos, atpress, attemp, pos)
         return HorCoord(azimuth, true_alt)
+
+    def ecl_speed(self, time: datetime, location: GeoLocation, **kwargs) -> EclSpeed:
+        return self.ecl_coord(time, location, speed=True, **kwargs)
+
+    def equator_speed(self, time: datetime, location: GeoLocation, **kwargs) -> EquatorSpeed:
+        return self.equator_coord(time, location, speed=True, **kwargs)
 
     def transits(self, time: datetime, location: GeoLocation):
         return {
@@ -115,11 +122,11 @@ class Celestial(ABC):
         pass
 
     @abstractmethod
-    def swe_ecl_coord(self, jd) -> EclCoord:
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord | EclSpeed:
         pass
 
     @abstractmethod
-    def swe_equator_coord(self, jd) -> EquatorCoord:
+    def swe_equator_coord(self, jd, speed: bool = False, mean: bool = False) -> EquatorCoord | EclSpeed:
         pass
 
 
@@ -139,12 +146,22 @@ class Planet(Celestial):
     def swe_id(self):
         return self.__swe_code
 
-    def swe_ecl_coord(self, jd) -> EclCoord:
-        (ecl, _) = swe.calc_ut(jd, self.__swe_code, swe.FLG_SWIEPH | swe.FLG_TOPOCTR)
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord | EclSpeed:
+        if mean is not False:
+            raise RuntimeError("mean position flag has no meaning for the planets")
+        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR
+        if speed:
+            iflag |= swe.FLG_SPEED
+        (ecl, _) = swe.calc_ut(jd, self.__swe_code, iflag)
         return EclCoord(ecl[0], ecl[1])
 
-    def swe_equator_coord(self, jd) -> EquatorCoord:
-        (equator, _) = swe.calc_ut(jd, self.__swe_code, swe.FLG_SWIEPH | swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL)
+    def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord | EquatorSpeed:
+        if mean is not False:
+            raise RuntimeError("mean position flag has no meaning for the planets")
+        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL
+        if speed:
+            iflag |= swe.FLG_SPEED
+        (equator, _) = swe.calc_ut(jd, self.__swe_code, iflag)
         return EquatorCoord(equator[0], equator[1])
 
 
@@ -168,20 +185,24 @@ class Apside(Celestial):
 class BlackSun(Apside):
     """Second focal point of some planet orbit"""
 
-    def swe_ecl_coord(self, jd, mean: bool = False) -> EclCoord:
-        iflag = swe.NODBIT_FOPOINT
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
+        method = swe.NODBIT_FOPOINT
         if not mean:
-            iflag |= swe.NODBIT_OSCU
-        (_, _, _, ecl) = swe.nod_aps_ut(jd, self.__swe_code, iflag,
-                                        swe.FLG_SWIEPH | swe.FLG_TOPOCTR)
+            method |= swe.NODBIT_OSCU
+        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR
+        if speed:
+            iflag |= swe.FLG_SPEED
+        (_, _, _, ecl) = swe.nod_aps_ut(jd, self.__swe_code, method, iflag)
         return EclCoord(ecl[0], ecl[1])
 
-    def swe_equator_coord(self, jd, mean: bool = False) -> EquatorCoord:
-        iflag = swe.NODBIT_FOPOINT
+    def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
+        method = swe.NODBIT_FOPOINT
         if not mean:
-            iflag |= swe.NODBIT_OSCU
-        (_, _, _, equator) = swe.nod_aps_ut(jd, self.__swe_code, iflag,
-                                            swe.FLG_SWIEPH | swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL)
+            method |= swe.NODBIT_OSCU
+        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL
+        if speed:
+            iflag |= swe.FLG_SPEED
+        (_, _, _, equator) = swe.nod_aps_ut(jd, self.__swe_code, method, iflag)
         return EquatorCoord(equator[0], equator[1])
 
 
@@ -201,12 +222,22 @@ class FixedCelestial(Celestial):
     def is_focal_point(self) -> bool:
         return False
 
-    def swe_ecl_coord(self, jd) -> EclCoord:
-        (ecl, _, _) = swe.fixstar_ut(self.__swe_code, jd, swe.FLG_SWIEPH | swe.FLG_TOPOCTR)
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
+        if mean is not False:
+            raise RuntimeError("mean position flag has no meaning for fixed objects")
+        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR
+        if speed:
+            iflag |= swe.FLG_SPEED
+        (ecl, _, _) = swe.fixstar_ut(self.__swe_code, jd, iflag)
         return EclCoord(ecl[0], ecl[1])
 
-    def swe_equator_coord(self, jd) -> EquatorCoord:
-        (equator, _, _) = swe.fixstar_ut(self.__swe_code, jd, swe.FLG_SWIEPH | swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL)
+    def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
+        if mean is not False:
+            raise RuntimeError("mean position flag has no meaning for fixed objects")
+        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL
+        if speed:
+            iflag |= swe.FLG_SPEED
+        (equator, _, _) = swe.fixstar_ut(self.__swe_code, jd, iflag)
         return EquatorCoord(equator[0], equator[1])
 
 
