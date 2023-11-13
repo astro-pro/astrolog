@@ -16,6 +16,9 @@ class EclCoord:
         self.longitude = Angle(longitude)
         self.latitude = Angle(latitude)
 
+    def __eq__(self, other) -> bool:
+        return self.latitude == other.latitude and self.longitude == other.longitude
+
     def __xor__(self, other) -> Angle:
         if self == other:
             return Angle(0)
@@ -27,7 +30,7 @@ class EclCoord:
         cosd = math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) * math.cos(dalpha)
         ang = math.acos(cosd)
         if ang > math.pi:
-            ang = 2 * math.pi - ang
+            ang = 2.0 * math.pi - ang
         return Angle(radians=ang)
 
     def sign_pos(self) -> (Zodiac, float):

@@ -24,8 +24,9 @@ class Celestial(ABC):
         "NEPTUNE": swe.NEPTUNE,
         "PLUTO": swe.PLUTO,
         "ERIS": swe.AST_OFFSET + 136199,
+        # "QUAOAR": swe.AST_OFFSET + 50000,
+        "CETO": swe.AST_OFFSET + 65489,
         "SEDNA": swe.AST_OFFSET + 90377,
-        "QUAOAR": swe.AST_OFFSET + 50000,
     }
 
     def __init__(self):
@@ -341,6 +342,9 @@ Planet.Saturn = Planet("Saturn")
 Planet.Uranus = Planet("Uranus")
 Planet.Neptune = Planet("Neptune")
 Planet.Pluto = Planet("Pluto")
+Planet.Eris = Planet("Eris")
+Planet.Ceto = Planet("Ceto")
+Planet.Sedna = Planet("Sedna")
 
 Planet.septener = [Planet.Sun, Planet.Mars, Planet.Moon, Planet.Mercury, Planet.Jupiter, Planet.Venus, Planet.Saturn]
 Planet.novile = Planet.septener + [Planet.Uranus, Planet.Neptune]

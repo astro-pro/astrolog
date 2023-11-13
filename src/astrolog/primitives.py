@@ -18,16 +18,19 @@ class Angle:
             elif type(degrees) is float or type(degrees) is int:
                 self.degrees = degrees
         elif radians is not None:
-            self.degrees = radians * 180 / math.pi
+            self.degrees = radians * 180.0 / math.pi
+
+    def __eq__(self, other) -> bool:
+        return self.degrees == other.degrees
 
     def radians(self):
-        return self.degrees * 2 * math.pi / 360
+        return self.degrees * 2.0 * math.pi / 360.0
 
     def aspect(self, orb: float = 0.5):
         if -orb <= self.degrees <= orb:
             return 1
         for div in range(2, 14):
-            angle = 360 / div
+            angle = 360.0 / div
             if angle - orb <= self.degrees <= angle + orb:
                 return div
         return None
