@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "astrolog"
-version = "0.6.3"
+version = "0.7.0"
 description = "High-level astrology methods based on Swiss Ephemeris"
 authors = ["Ign. Aiom Ominous <aiom.ominous@gmail.com>"]
 keywords = ["astronomy", "swisseph", "astrology", "swissephemeris"]

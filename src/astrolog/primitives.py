@@ -4,6 +4,19 @@ from types import NoneType
 from dms2dec.dms_convert import dms2dec
 import math
 
+@dataclass
+class Au:
+    """Distance in astronomic units (a.u.)"""
+
+    def __init__(self, au: float):
+        self.au = au
+
+@dataclass
+class AuSpeed:
+    """Speed in astronomic units (a.u.) per day"""
+
+    def __init__(self, speed: float):
+        self.au_per_day = speed
 
 @dataclass
 class Angle:

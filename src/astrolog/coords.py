@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import math
 
-from .primitives import Angle, AngularSpeed
+from .primitives import Angle, AngularSpeed, Au, AuSpeed
 from .zodiac import Zodiac, ZodiacConstell
 
 
@@ -11,10 +11,12 @@ class EclCoord:
 
     latitude: Angle
     longitude: Angle
+    distance: Au
 
-    def __init__(self, longitude: float, latitude: float):
+    def __init__(self, longitude: float, latitude: float, distance: float):
         self.longitude = Angle(longitude)
         self.latitude = Angle(latitude)
+        self.distance = Au(distance)
 
     def __eq__(self, other) -> bool:
         return self.latitude == other.latitude and self.longitude == other.longitude
@@ -49,7 +51,7 @@ class EclCoord:
         return constell, offset
 
     def json(self) -> dict:
-        return {'lat': self.latitude.degrees, 'long': self.longitude.degrees}
+        return {'lat': self.latitude.degrees, 'long': self.longitude.degrees, 'dist': self.distance.au}
 
 
 @dataclass
@@ -58,13 +60,47 @@ class EquatorCoord:
 
     ra: Angle
     decl: Angle
+    distance: Au
 
-    def __init__(self, ra: float, decl: float):
+    def __init__(self, ra: float, decl: float, distance: float):
         self.ra = Angle(ra)
         self.decl = Angle(decl)
+        self.distance = Au(distance)
 
     def json(self) -> dict:
-        return {'ra': self.ra.degrees, 'decl': self.decl.degrees}
+        return {'ra': self.ra.degrees, 'decl': self.decl.degrees, 'dist': self.distance.au}
+
+@dataclass
+class BaryCoord:
+    """Barycentric coordinate"""
+
+    latitude: Angle
+    longitude: Angle
+    distance: Au
+
+    def __init__(self, longitude: float, latitude: float, distance: float):
+        self.longitude = Angle(longitude)
+        self.latitude = Angle(latitude)
+        self.distance = Au(distance)
+
+    def json(self) -> dict:
+        return {'lat': self.latitude.degrees, 'long': self.longitude.degrees, 'dist': self.distance.au}
+
+@dataclass
+class HelioCoord:
+    """Heliocentric coordinate"""
+
+    latitude: Angle
+    longitude: Angle
+    distance: Au
+
+    def __init__(self, longitude: float, latitude: float, distance: float):
+        self.longitude = Angle(longitude)
+        self.latitude = Angle(latitude)
+        self.distance = Au(distance)
+
+    def json(self) -> dict:
+        return {'lat': self.latitude.degrees, 'long': self.longitude.degrees, 'dist': self.distance.au}
 
 
 @dataclass
@@ -73,10 +109,12 @@ class HorCoord:
 
     azimuth: Angle
     altitude: Angle
+    distance: Au
 
-    def __init__(self, azimuth: float, altitude: float):
+    def __init__(self, azimuth: float, altitude: float, distance: float):
         self.azimuth = Angle(azimuth)
         self.altitude = Angle(altitude)
+        self.distance = Au(distance)
 
     def house_pos(self) -> (int, float):
         alt = self.altitude.radians()
@@ -90,7 +128,7 @@ class HorCoord:
         return house13, house_pos
 
     def json(self) -> dict:
-        return {'azimuth': self.azimuth.degrees, 'alt': self.altitude.degrees}
+        return {'azimuth': self.azimuth.degrees, 'alt': self.altitude.degrees, 'dist': self.distance.au}
 
 
 @dataclass
@@ -99,16 +137,19 @@ class EclSpeed(EclCoord):
 
     longitude_speed: AngularSpeed
     latitude_speed: AngularSpeed
+    distance_speed: AuSpeed
 
-    def __init__(self, longitude: float, latitude: float, longitude_speed: float, latitude_speed: float):
-        super().__init__(longitude, latitude)
+    def __init__(self, longitude: float, latitude: float, dist: float, longitude_speed: float, latitude_speed: float, distance_speed: float):
+        super().__init__(longitude, latitude, dist)
         self.longitude_speed = AngularSpeed(longitude_speed)
         self.latitude_speed = AngularSpeed(latitude_speed)
+        self.distance_speed = AuSpeed(distance_speed)
 
     def json(self) -> dict:
         d = super().json()
         d['long_spd'] = self.longitude_speed.deg_per_day
         d['lat_spd'] = self.latitude_speed.deg_per_day
+        d['dist_spd'] = self.distance_speed.au_per_day
         return d
 
 @dataclass
@@ -117,14 +158,59 @@ class EquatorSpeed(EquatorCoord):
 
     ra_speed: AngularSpeed
     decl_speed: AngularSpeed
+    distance_speed: AuSpeed
 
-    def __init__(self, ra: float, decl: float, ra_speed: float, decl_speed: float):
-        super().__init__(ra, decl)
+    def __init__(self, ra: float, decl: float, dist: float, ra_speed: float, decl_speed: float, distance_speed: float):
+        super().__init__(ra, decl, dist)
         self.ra_speed = AngularSpeed(ra_speed)
         self.decl_speed = AngularSpeed(decl_speed)
+        self.distance_speed = AuSpeed(distance_speed)
 
     def json(self) -> dict:
         d = super().json()
         d['ra_spd'] = self.ra_speed.deg_per_day
         d['decl_spd'] = self.decl_speed.deg_per_day
+        d['dist_spd'] = self.distance_speed.au_per_day
+        return d
+
+@dataclass
+class BarySpeed(BaryCoord):
+    """Barycentric coordinate with speed"""
+
+    longitude_speed: AngularSpeed
+    latitude_speed: AngularSpeed
+    distance_speed: AuSpeed
+
+    def __init__(self, longitude: float, latitude: float, dist: float, longitude_speed: float, latitude_speed: float, distance_speed: float):
+        super().__init__(longitude, latitude, dist)
+        self.longitude_speed = AngularSpeed(longitude_speed)
+        self.latitude_speed = AngularSpeed(latitude_speed)
+        self.distance_speed = AuSpeed(distance_speed)
+
+    def json(self) -> dict:
+        d = super().json()
+        d['long_spd'] = self.longitude_speed.deg_per_day
+        d['lat_spd'] = self.latitude_speed.deg_per_day
+        d['dist_spd'] = self.distance_speed.au_per_day
+        return d
+
+@dataclass
+class HelioSpeed(HelioCoord):
+    """Heliocentric coordinate with speed"""
+
+    longitude_speed: AngularSpeed
+    latitude_speed: AngularSpeed
+    distance_speed: AuSpeed
+
+    def __init__(self, longitude: float, latitude: float, dist: float, longitude_speed: float, latitude_speed: float, distance_speed: float):
+        super().__init__(longitude, latitude, dist)
+        self.longitude_speed = AngularSpeed(longitude_speed)
+        self.latitude_speed = AngularSpeed(latitude_speed)
+        self.distance_speed = AuSpeed(distance_speed)
+
+    def json(self) -> dict:
+        d = super().json()
+        d['long_spd'] = self.longitude_speed.deg_per_day
+        d['lat_spd'] = self.latitude_speed.deg_per_day
+        d['dist_spd'] = self.distance_speed.au_per_day
         return d

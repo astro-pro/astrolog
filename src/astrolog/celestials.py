@@ -4,9 +4,9 @@ from types import NoneType
 
 import swisseph as swe
 
-from . import GeoLocation, EclCoord, EquatorCoord, HorCoord
-from .coords import EclSpeed, EquatorSpeed
+from . import GeoLocation, EclCoord, EquatorCoord, HorCoord, BaryCoord, HelioCoord, EclSpeed, EquatorSpeed, BarySpeed, HelioSpeed
 
+# TODO: Consider using SEFLG_TRUEPOS everywhere (since focal points and apsides use it anyway)
 
 class Celestial(ABC):
     """Abstract class for celestial objects whose location can be computed"""
@@ -144,32 +144,58 @@ class Planet(Celestial):
     def is_focal_point(self) -> bool:
         return False
 
+    def bary_coord(self, time: datetime, *, speed: bool = False, mean: bool = False) -> BaryCoord | BarySpeed:
+        jd = swe.julday(time.year, time.month, time.day, time.hour + time.minute / 60.)
+        return self.swe_bary_coord(jd, speed=speed, mean=mean)
+
+    def helio_coord(self, time: datetime, *, speed: bool = False, mean: bool = False) -> HelioCoord | HelioSpeed:
+        jd = swe.julday(time.year, time.month, time.day, time.hour + time.minute / 60.)
+        return self.swe_helio_coord(jd, speed=speed, mean=mean)
+
+    def bary_speed(self, time: datetime, **kwargs) -> BarySpeed:
+        return self.bary_coord(time, speed=True, **kwargs)
+
+    def helio_speed(self, time: datetime, **kwargs) -> HelioSpeed:
+        return self.helio_coord(time, speed=True, **kwargs)
+
     def swe_id(self):
         return self.__swe_code
 
-    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord | EclSpeed:
+    def swe_calc(self, jd, iflag, *, speed: bool = False, mean: bool = False):
         if mean is not False:
             raise RuntimeError("mean position flag has no meaning for the planets")
-        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR
+        iflag |= swe.FLG_SWIEPH
         if speed:
             iflag |= swe.FLG_SPEED
-        (ecl, _) = swe.calc_ut(jd, self.__swe_code, iflag)
+        return swe.calc_ut(jd, self.__swe_code, iflag)
+
+    def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord | EclSpeed:
+        (ecl, _) = self.swe_calc(jd, swe.FLG_TOPOCTR, speed=speed, mean=mean)
         if speed:
-            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+            return EclSpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4])
         else:
-            return EclCoord(ecl[0], ecl[1])
+            return EclCoord(ecl[0], ecl[1], ecl[2])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord | EquatorSpeed:
-        if mean is not False:
-            raise RuntimeError("mean position flag has no meaning for the planets")
-        iflag = swe.FLG_SWIEPH | swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL
+        (equator, _) = self.swe_calc(jd, swe.FLG_TOPOCTR | swe.FLG_EQUATORIAL, speed=speed, mean=mean)
         if speed:
-            iflag |= swe.FLG_SPEED
-        (equator, _) = swe.calc_ut(jd, self.__swe_code, iflag)
-        if speed:
-            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+            return EquatorSpeed(equator[0], equator[1], equator[2], equator[3], equator[4])
         else:
-            return EquatorCoord(equator[0], equator[1])
+            return EquatorCoord(equator[0], equator[1], equator[2])
+
+    def swe_bary_coord(self, jd, speed: bool = False, mean: bool = False) -> BaryCoord | BarySpeed:
+        (ecl, _) = self.swe_calc(jd, swe.FLG_BARYCTR, speed=speed, mean=mean)
+        if speed:
+            return BarySpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4])
+        else:
+            return BaryCoord(ecl[0], ecl[1], ecl[2])
+
+    def swe_helio_coord(self, jd, speed: bool = False, mean: bool = False) -> HelioCoord | HelioSpeed:
+        (ecl, _) = self.swe_calc(jd, swe.FLG_HELCTR, speed=speed, mean=mean)
+        if speed:
+            return HelioSpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4])
+        else:
+            return HelioCoord(ecl[0], ecl[1], ecl[2])
 
 
 class ApsisNode(Celestial):
@@ -206,16 +232,16 @@ class SecondFocus(ApsisNode):
     def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
         (_, _, _, ecl) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False, second_focus=True)
         if speed:
-            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+            return EclSpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4], ecl[5])
         else:
-            return EclCoord(ecl[0], ecl[1])
+            return EclCoord(ecl[0], ecl[1], ecl[2])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
         (_, _, _, equator) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True, second_focus=True)
         if speed:
-            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+            return EquatorSpeed(equator[0], equator[1], equator[2], equator[3], equator[4], equator[5])
         else:
-            return EquatorCoord(equator[0], equator[1])
+            return EquatorCoord(equator[0], equator[1], equator[2])
 
 
 class ApoApsis(ApsisNode):
@@ -224,16 +250,16 @@ class ApoApsis(ApsisNode):
     def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
         (_, _, _, ecl) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False)
         if speed:
-            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+            return EclSpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4], ecl[5])
         else:
-            return EclCoord(ecl[0], ecl[1])
+            return EclCoord(ecl[0], ecl[1], ecl[2])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
         (_, _, _, equator) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True)
         if speed:
-            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+            return EquatorSpeed(equator[0], equator[1], equator[2], equator[3], equator[4], equator[5])
         else:
-            return EquatorCoord(equator[0], equator[1])
+            return EquatorCoord(equator[0], equator[1], equator[2])
 
 
 class PeriApsis(ApsisNode):
@@ -242,16 +268,16 @@ class PeriApsis(ApsisNode):
     def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
         (_, _, ecl, _) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False)
         if speed:
-            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+            return EclSpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4], ecl[5])
         else:
-            return EclCoord(ecl[0], ecl[1])
+            return EclCoord(ecl[0], ecl[1], ecl[2])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
         (_, _, equator, _) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True)
         if speed:
-            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+            return EquatorSpeed(equator[0], equator[1], equator[2], equator[3], equator[4], equator[5])
         else:
-            return EquatorCoord(equator[0], equator[1])
+            return EquatorCoord(equator[0], equator[1], equator[2])
 
 
 class AscNode(ApsisNode):
@@ -260,16 +286,16 @@ class AscNode(ApsisNode):
     def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
         (ecl, _, _, _) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False)
         if speed:
-            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+            return EclSpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4], ecl[5])
         else:
-            return EclCoord(ecl[0], ecl[1])
+            return EclCoord(ecl[0], ecl[1], ecl[2])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
         (equator, _, _, _) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True)
         if speed:
-            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+            return EquatorSpeed(equator[0], equator[1], equator[2], equator[3], equator[4], equator[5])
         else:
-            return EquatorCoord(equator[0], equator[1])
+            return EquatorCoord(equator[0], equator[1], equator[2])
 
 
 class DscNode(ApsisNode):
@@ -278,16 +304,16 @@ class DscNode(ApsisNode):
     def swe_ecl_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EclCoord:
         (_, ecl, _, _) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=False)
         if speed:
-            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+            return EclSpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4], ecl[5])
         else:
-            return EclCoord(ecl[0], ecl[1])
+            return EclCoord(ecl[0], ecl[1], ecl[2])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
         (_, equator, _, _) = super()._swe_ecl_coord_nod_aps(jd, speed=speed, mean=mean, equatorial=True)
         if speed:
-            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+            return EquatorSpeed(equator[0], equator[1], equator[2], equator[3], equator[4], equator[5])
         else:
-            return EquatorCoord(equator[0], equator[1])
+            return EquatorCoord(equator[0], equator[1], equator[2])
 
 
 class FixedCelestial(Celestial):
@@ -314,9 +340,9 @@ class FixedCelestial(Celestial):
             iflag |= swe.FLG_SPEED
         (ecl, _, _) = swe.fixstar_ut(self.__swe_code, jd, iflag)
         if speed:
-            return EclSpeed(ecl[0], ecl[1], ecl[3], ecl[4])
+            return EclSpeed(ecl[0], ecl[1], ecl[2], ecl[3], ecl[4], ecl[5])
         else:
-            return EclCoord(ecl[0], ecl[1])
+            return EclCoord(ecl[0], ecl[1], ecl[2])
 
     def swe_equator_coord(self, jd, *, speed: bool = False, mean: bool = False) -> EquatorCoord:
         if mean is not False:
@@ -326,9 +352,9 @@ class FixedCelestial(Celestial):
             iflag |= swe.FLG_SPEED
         (equator, _, _) = swe.fixstar_ut(self.__swe_code, jd, iflag)
         if speed:
-            return EquatorSpeed(equator[0], equator[1], equator[3], equator[4])
+            return EquatorSpeed(equator[0], equator[1], equator[2], equator[3], equator[4], equator[5])
         else:
-            return EquatorCoord(equator[0], equator[1])
+            return EquatorCoord(equator[0], equator[1], equator[2])
 
 
 Planet.Sun = Planet("Sun")
