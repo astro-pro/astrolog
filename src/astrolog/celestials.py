@@ -375,6 +375,7 @@ Planet.Sedna = Planet("Sedna")
 Planet.septener = [Planet.Sun, Planet.Mars, Planet.Moon, Planet.Mercury, Planet.Jupiter, Planet.Venus, Planet.Saturn]
 Planet.novile = Planet.septener + [Planet.Uranus, Planet.Neptune]
 
+SecondFocus.Sun = SecondFocus("BS Sun", swe.SUN)
 SecondFocus.Moon = SecondFocus("BE Moon", swe.MOON)
 SecondFocus.Mercury = SecondFocus("BS Mercury", swe.MERCURY)
 SecondFocus.Venus = SecondFocus("BS Venus", swe.VENUS)
